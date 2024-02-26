@@ -1,8 +1,8 @@
 name: Trigger auto deployment for demo-container
 
-#env:
-#  AZURE_CONTAINER_APP_NAME: demo-container
-#  AZURE_GROUP_NAME: demo-container
+env:
+ AZURE_CONTAINER_APP_NAME: demo-container
+ AZURE_GROUP_NAME: demo-container
 
 # When this action will be executed
 on:
@@ -25,10 +25,10 @@ jobs:
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v1
 
-      - name: Log in to GitHub container registry
+      - name: Log in to Azure container registry
         uses: docker/login-action@v1.10.0
         with:
-          registry: demoalfredo.azurecr.io
+          registry: demohuggingface.azurecr.io
           username: ${{ secrets.ACR_USERNAME }}
           password: ${{ secrets.ACR_PASSWORD }}
 
@@ -39,25 +39,25 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           push: true
-          tags: demoalfredo.azurecr.io/${{ env.REPO }}:${{ github.sha }}
+          tags: demohuggingface.azurecr.io/${{ env.REPO }}:${{ github.sha }}
           file: ./Dockerfile
 
-  deploy:
-    runs-on: ubuntu-latest
-    needs: build
+  # deploy:
+  #   runs-on: ubuntu-latest
+  #   needs: build
     
-    steps:
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          creds: ${{ secrets.AZURE_CREDENTIALS }}
+  #   steps:
+  #     - name: Azure Login
+  #       uses: azure/login@v1
+  #       with:
+  #         creds: ${{ secrets.AZURE_CREDENTIALS }}
 
 
-      - name: Deploy to containerapp
-        uses: azure/CLI@v1
-        with:
-          inlineScript: |
-            az config set extension.use_dynamic_install=yes_without_prompt
-            az containerapp registry set -n demo-container -g demo-container --server demoalfredo.azurecr.io --username ${{ secrets.ACR_USERNAME }} --password ${{ secrets.ACR_PASSWORD }}
-            az containerapp update -n demo-container -g demo-container --cpu 2 --memory 4Gi
-            az containerapp update -n demo-container -g demo-container --image demoalfredo.azurecr.io/llmdeveloper47/huggingface-azure-acr-embedding:${{ github.sha }}
+  #     - name: Deploy to containerapp
+  #       uses: azure/CLI@v1
+  #       with:
+  #         inlineScript: |
+  #           az config set extension.use_dynamic_install=yes_without_prompt
+  #           az containerapp registry set -n demo-container -g demo-container --server demohuggingface.azurecr.io --username ${{ secrets.ACR_USERNAME }} --password ${{ secrets.ACR_PASSWORD }}
+  #           az containerapp update -n demo-container -g demo-container --cpu 4 --memory 8Gi
+  #           az containerapp update -n demo-container -g demo-container --image demohuggingface.azurecr.io/llmdeveloper47/huggingface-azure-acr-embedding:${{ github.sha }}
