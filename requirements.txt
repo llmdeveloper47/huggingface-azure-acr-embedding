@@ -1,0 +1,8 @@
+transformers==4.38.1
+torch
+fastapi==0.78.0
+sentence-transformers==2.4.0
+uvicorn[standard]
+optimum[onnxruntime]==1.17.1
+huggingface-hub 
+onnxruntime
